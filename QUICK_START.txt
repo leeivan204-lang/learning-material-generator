@@ -1,0 +1,64 @@
+╔════════════════════════════════════════════════════════════════╗
+║   特教學習單與小日記產生器 - 快速部署指南                          ║
+╚════════════════════════════════════════════════════════════════╝
+
+⏱️ 預計時間：5 分鐘
+
+📋 步驟 1: 建立 GitHub 倉庫
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+① 打開: https://github.com/new
+② 輸入倉庫名稱: learning-material-generator
+③ 選擇 Public
+④ 點擊 Create repository
+⑤ 複製倉庫 URL（HTTPS）
+
+📋 步驟 2: 推送代碼到 GitHub
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+在 PowerShell/Terminal 執行：
+
+  cd "D:\學習單製作網"
+
+  git branch -M main
+  git remote add origin https://github.com/YOUR_USERNAME/learning-material-generator.git
+  git push -u origin main
+
+⚠️ 注意：用你真實的 GitHub 使用者名稱替換 YOUR_USERNAME
+
+📋 步驟 3: 啟用 GitHub Pages
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+① 進入倉庫: https://github.com/YOUR_USERNAME/learning-material-generator
+② 點擊 Settings（設定）
+③ 左側選 Pages
+④ Source 選 GitHub Actions
+⑤ 等待部署完成（約 1-3 分鐘）
+
+✅ 部署完成
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+訪問你的網站:
+
+  https://YOUR_USERNAME.github.io/learning-material-generator
+
+範例：https://john-doe.github.io/learning-material-generator
+
+🔄 更新網站
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+每次修改後：
+
+  git add .
+  git commit -m "更新說明"
+  git push
+
+就會自動重新部署！
+
+🆘 幫助
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+詳細部署指南見: DEPLOYMENT_GUIDE.md
+README 文件: README.md
+
+💡 提示
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ 確保倉庫是 Public，這樣其他人才能訪問
+✓ 第一次部署需要 1-3 分鐘，請耐心等待
+✓ 在 Actions 標籤可以看到部署狀態
+
+祝使用愉快！🎉
