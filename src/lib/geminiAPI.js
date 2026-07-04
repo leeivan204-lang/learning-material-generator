@@ -1,4 +1,4 @@
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'
 
 const DIARY_PROMPTS = {
   logic: `你是特教班老師。生成一份適合輕度到中度認知功能缺損學生的圖像邏輯推理小日記。
