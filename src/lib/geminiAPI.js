@@ -1,4 +1,4 @@
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
 
 const DIARY_PROMPTS = {
   logic: `你是特教班老師。生成一份適合輕度到中度認知功能缺損學生的圖像邏輯推理小日記。
@@ -104,66 +104,70 @@ const WORKSHEET_PROMPTS = {
 }
 
 export async function generateDiaryContent(topic, apiKey) {
+  if (!apiKey || !apiKey.trim()) {
+    throw new Error('請輸入有效的 Google Gemini API 金鑰')
+  }
+
   const prompt = DIARY_PROMPTS[topic]
 
-  const response = await fetch(GEMINI_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      contents: [{
-        parts: [{
-          text: prompt
-        }]
-      }],
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 800,
-      }
-    }),
-    params: {
-      key: apiKey
-    }
-  })
+  try {
+    const url = `${GEMINI_API_URL}?key=${encodeURIComponent(apiKey.trim())}`
 
-  const fullUrl = GEMINI_API_URL + `?key=${apiKey}`
-  const apiResponse = await fetch(fullUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      contents: [{
-        parts: [{
-          text: prompt
-        }]
-      }],
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 800,
-      }
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 800,
+        }
+      })
     })
-  })
 
-  if (!apiResponse.ok) {
-    throw new Error(`API 請求失敗: ${apiResponse.statusText}`)
+    const data = await response.json()
+
+    // 檢查 API 錯誤回應
+    if (data.error) {
+      const errorMsg = data.error.message || '未知錯誤'
+      if (errorMsg.includes('API key')) {
+        throw new Error('❌ API 金鑰無效或已過期\n\n✓ 解決方法：\n1. 訪問 https://ai.google.dev\n2. 重新生成 API 金鑰\n3. 複製新金鑰到應用')
+      } else if (errorMsg.includes('quota')) {
+        throw new Error('❌ API 配額已用完\n\n✓ 解決方法：\n稍後再試，或檢查免費試用額度是否還有')
+      }
+      throw new Error(`❌ API 錯誤: ${errorMsg}`)
+    }
+
+    if (!response.ok) {
+      throw new Error(`❌ 請求失敗 (${response.status})\n\n✓ 檢查項目：\n• API 金鑰是否正確\n• 網路連接是否正常\n• Gemini API 是否已啟用`)
+    }
+
+    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+      return data.candidates[0].content.parts[0].text
+    }
+
+    throw new Error('❌ 無法生成內容\n\n✓ 請檢查 API 金鑰有效性或重試')
+  } catch (error) {
+    if (error.message.includes('Failed to fetch')) {
+      throw new Error('❌ 網路連接失敗\n\n✓ 檢查項目：\n• 是否已連接網路\n• 防火牆是否阻止\n• API 金鑰是否有效')
+    }
+    throw error
   }
-
-  const data = await apiResponse.json()
-
-  if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-    return data.candidates[0].content.parts[0].text
-  }
-
-  throw new Error('無法生成內容')
 }
 
 export async function generateWorksheetContent({ subject, types, count, apiKey }) {
+  if (!apiKey || !apiKey.trim()) {
+    throw new Error('請輸入有效的 Google Gemini API 金鑰')
+  }
+
   const basePrompt = WORKSHEET_PROMPTS[subject]
   const typesList = {
     multiple: '選擇題',
@@ -189,37 +193,55 @@ export async function generateWorksheetContent({ subject, types, count, apiKey }
 - 答案明確、唯一
 - 生活應用相關性高`
 
-  const fullUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`
+  try {
+    const url = `${GEMINI_API_URL}?key=${encodeURIComponent(apiKey.trim())}`
 
-  const apiResponse = await fetch(fullUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      contents: [{
-        parts: [{
-          text: fullPrompt
-        }]
-      }],
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 2000,
-      }
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: fullPrompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 2000,
+        }
+      })
     })
-  })
 
-  if (!apiResponse.ok) {
-    throw new Error(`API 請求失敗: ${apiResponse.statusText}`)
+    const data = await response.json()
+
+    // 檢查 API 錯誤回應
+    if (data.error) {
+      const errorMsg = data.error.message || '未知錯誤'
+      if (errorMsg.includes('API key')) {
+        throw new Error('❌ API 金鑰無效或已過期\n\n✓ 解決方法：\n1. 訪問 https://ai.google.dev\n2. 重新生成 API 金鑰\n3. 複製新金鑰到應用')
+      } else if (errorMsg.includes('quota')) {
+        throw new Error('❌ API 配額已用完\n\n✓ 解決方法：\n稍後再試，或檢查免費試用額度是否還有')
+      }
+      throw new Error(`❌ API 錯誤: ${errorMsg}`)
+    }
+
+    if (!response.ok) {
+      throw new Error(`❌ 請求失敗 (${response.status})\n\n✓ 檢查項目：\n• API 金鑰是否正確\n• 網路連接是否正常\n• Gemini API 是否已啟用`)
+    }
+
+    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+      return data.candidates[0].content.parts[0].text
+    }
+
+    throw new Error('❌ 無法生成內容\n\n✓ 請檢查 API 金鑰有效性或重試')
+  } catch (error) {
+    if (error.message.includes('Failed to fetch')) {
+      throw new Error('❌ 網路連接失敗\n\n✓ 檢查項目：\n• 是否已連接網路\n• 防火牆是否阻止\n• API 金鑰是否有效')
+    }
+    throw error
   }
-
-  const data = await apiResponse.json()
-
-  if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-    return data.candidates[0].content.parts[0].text
-  }
-
-  throw new Error('無法生成內容')
 }
